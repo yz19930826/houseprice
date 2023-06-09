@@ -1,23 +1,16 @@
-package assister;
+package biz;
 
-import biz.HouseOperator;
-import biz.LoginContext;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.FormBody;
 import okhttp3.Headers;
-import org.apache.http.Header;
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.message.BasicNameValuePair;
 import utils.OKHttpUtil;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.BiConsumer;
 
 @Slf4j
 public class LianJiaWebOperator implements HouseOperator {
@@ -93,5 +86,10 @@ public class LianJiaWebOperator implements HouseOperator {
             return -1;
         }
         return 0;
+    }
+
+    @Override
+    public List<FollowedHouseDataEntity> queryFollowedHouse(LoginContext loginContext) {
+        throw new UnsupportedOperationException();
     }
 }
