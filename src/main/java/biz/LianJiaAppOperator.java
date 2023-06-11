@@ -42,8 +42,8 @@ public class LianJiaAppOperator implements HouseOperator{
             entity.setCityId(jsonObject.getString("city_id"));
             entity.setCommunityId(jsonObject.getString("community_id"));
             entity.setCommunityName(jsonObject.getString("community_name"));
-            entity.setSoldPrice(jsonObject.getInteger("price"));
-            entity.setSoldPriceUnit(jsonObject.getInteger("unit_price"));
+            entity.setSoldPrice(jsonObject.getString("price"));
+            entity.setSoldPriceUnit(jsonObject.getString("unit_price"));
 
             resultList.add(entity);
         }

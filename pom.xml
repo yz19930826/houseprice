@@ -99,6 +99,19 @@
       <scope>test</scope>
     </dependency>
 
+    <!-- https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc -->
+    <dependency>
+      <groupId>org.xerial</groupId>
+      <artifactId>sqlite-jdbc</artifactId>
+      <version>3.42.0.0</version>
+    </dependency>
+
+
+    <dependency>
+      <groupId>org.apache.cayenne</groupId>
+      <artifactId>cayenne-server</artifactId>
+      <version>4.2</version>
+    </dependency>
 
 
   </dependencies>

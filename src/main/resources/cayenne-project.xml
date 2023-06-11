@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cayenne-project xmlns="http://cayenne.apache.org/schema/4.2/cayenne-project.xsd">
+    <data-node name="default" factory="org.apache.cayenne.configuration.server.XMLPoolingDataSourceFactory">
+        <parameters>
+            <property name="jdbcUrl" value="jdbc:sqlite:housedata.sqlite"/>
+            <property name="driverClassName" value="org.sqlite.JDBC"/>
+        </parameters>
+    </data-node>
+</cayenne-project>

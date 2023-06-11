@@ -6,8 +6,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import utils.OKHttpUtil;
 
-import java.math.BigDecimal;
-
 /**
  *
  */
@@ -22,12 +20,12 @@ public class LianJiaWebSoldHouseDetailFetcherImpl implements SoldHouseDetailFetc
     }
 
     @Override
-    public HouseDataEntity fetch(String houseCode) {
+    public HouseData fetch(String houseCode) {
         String fullApi = String.format(SOLD_DETAIL_URL, houseCode);
         String content = OKHttpUtil.get(fullApi, Headers.of(context.headers()));
         Document document = Jsoup.parse(content);
 
-        HouseDataEntity entity = new HouseDataEntity();
+        HouseData entity = new HouseData();
 
         entity.setFrom(FromTypeEnum.LIAN_JIA.getCode());
 
@@ -44,11 +42,9 @@ public class LianJiaWebSoldHouseDetailFetcherImpl implements SoldHouseDetailFetc
 //        entity.setSellerUnitPrice();
 
         Elements soldLabelElements = document.getElementsByClass("info fr").get(0).getElementsByTag("label");
-        BigDecimal listingPrice = new BigDecimal(soldLabelElements.get(0).text());
-        entity.setListingPrice(listingPrice);
+        entity.setListingPrice(soldLabelElements.get(0).text());
 
-        Integer soldDays = Integer.valueOf(soldLabelElements.get(1).text());
-        entity.setSoldDays(soldDays);
+        entity.setSoldDays(soldLabelElements.get(1).text());
 
         Elements houseInfoElement = document.getElementsByClass("houseContentBox")
                 .get(0)
