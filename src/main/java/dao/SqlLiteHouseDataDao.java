@@ -17,6 +17,16 @@ import java.time.LocalDateTime;
 @Slf4j
 public class SqlLiteHouseDataDao implements HouseDataDao {
 
+
+    static {
+        try {
+            Class.forName("org.sqlite.JDBC");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
     // 连接SQLLITE
     public Connection getConnection() {
         Connection connection = null;
@@ -25,22 +35,14 @@ public class SqlLiteHouseDataDao implements HouseDataDao {
             Class.forName("org.sqlite.JDBC");
             // 建立数据库连接
             String projectPath = System.getProperty("user.dir");
-            String sqlLiteDbFilePath = "jdbc:sqlite:" + projectPath + "\\housedata.sqlite";
-            log.info("get filepath of sqllite :{}" ,sqlLiteDbFilePath);
+            String fileSeparator = System.getProperty("file.separator");
+            String sqlLiteDbFilePath = "jdbc:sqlite:" + projectPath + fileSeparator +"housedata.sqlite";
+
+            log.info("get filepath of sqlite :{}" ,sqlLiteDbFilePath);
             connection = DriverManager.getConnection(sqlLiteDbFilePath);
-            System.out.println("already connected db...");
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
             throw new IllegalStateException(e);
-        } finally {
-            try {
-                // 关闭连接
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
         return connection;
     }
@@ -52,8 +54,8 @@ public class SqlLiteHouseDataDao implements HouseDataDao {
                 "                              orientation, floor_state, home_pic, community_id, community_name,  city_id,\n" +
                 "                              house_layout, area, inside_area, sold_price, sold_unit_price, created_time, modify_time,\n" +
                 "                              house_age_after_last_transaction)\n" +
-                "values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);", entity.getHouseCode(),entity.getListingPrice(),entity.getListingUnitPrice(),entity.getListingDate(),entity.getTitle(),entity. getSoldDate(),
-                entity.getOrientation(),entity.getFloor(),entity.getHouseCode(),entity.getPic(),entity.getCommunityId(),entity.getCommunityName(),entity.getCityId(),
+                "values ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');", entity.getHouseCode(),entity.getListingPrice(),entity.getListingUnitPrice(),entity.getListingDate(),entity.getTitle(),entity. getSoldDate(),
+                entity.getOrientation(),entity.getFloor(),entity.getPic(),entity.getCommunityId(),entity.getCommunityName(),entity.getCityId(),
                 entity.getLayout(),entity.getArea(),entity.getInsideArea(),entity.getSoldPrice(),entity.getSoldUnitPrice(), DateUtil.format(LocalDateTime.now()),DateUtil.format(LocalDateTime.now()),
                         entity.getHouseYears());
 
