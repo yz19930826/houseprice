@@ -27,7 +27,7 @@ public class LianJiaWebSoldHouseDetailFetcherImpl implements SoldHouseDetailFetc
 
         HouseData entity = new HouseData();
 
-        entity.setFrom(FromTypeEnum.LIAN_JIA.getCode());
+        entity.setFetchFrom(FromTypeEnum.LIAN_JIA.getCode());
 
 
         String title = document.getElementsByTag("title").get(0).text();

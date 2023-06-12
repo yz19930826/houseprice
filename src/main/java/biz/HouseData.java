@@ -2,14 +2,11 @@ package biz;
 
 import lombok.Data;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
 @Data
 public class HouseData {
     private String title;
     private String houseCode;
-    private String from;
+    private String fetchFrom;
 
     private String soldPrice;
     private String soldUnitPrice;

@@ -19,7 +19,7 @@ class SqlLiteHouseDataDaoTest {
         HouseData houseDataEntity = new HouseData();
         houseDataEntity.setTitle("1");
         houseDataEntity.setHouseCode("2");
-        houseDataEntity.setFrom("3");
+        houseDataEntity.setFetchFrom("3");
         houseDataEntity.setSoldPrice("4");
         houseDataEntity.setSoldUnitPrice("5");
         houseDataEntity.setSoldDays("6");
