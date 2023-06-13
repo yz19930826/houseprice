@@ -1,6 +1,7 @@
 package biz;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -19,7 +20,6 @@ public class AppFollowedQueryLoginContext implements LoginContext{
                 "lianjia-recommend-allowable: 1\n" +
                 "accept: */*\n" +
                 "device-info: scale=2.0;screenwidth=828;screenheight=1792\n" +
-                "accept-encoding: gzip\n" +
                 "eleparentsceneid: -1\n" +
                 "user-agent: HomeLink 9.79.40;iPhone12,1;iOS 15.4;\n" +
                 "cookie: lianjia_uuid=5D10EBCB-7CCA-4459-9095-41C70D78F6E9; lianjia_ssid=3EFB2EFD-3F51-4D0B-8979-00CF7CA8B507; lianjia_udid=00000000-0000-0000-0000-000000000000; lianjia_token=2.00117aef666d6ba9ad00d7c65758baeb09; latitude=(null); longitude=(null)\n" +
@@ -48,12 +48,11 @@ public class AppFollowedQueryLoginContext implements LoginContext{
                 "lianjia-timestamp: 1680677231.207172\n" +
                 "hardware-s: iPhone12,1\n" +
                 "lianjia-im-version: 1\n" +
-                "Connection: close";
+                "Connection: close\n";
 
         String[] split = headerStr.split("\n");
 
-
-        HashMap<String, String> resultMap = new HashMap<>();
+        Map<String, String> resultMap = new LinkedHashMap<>();
 
         for (String s : split) {
             String[] kv = s.split(":");

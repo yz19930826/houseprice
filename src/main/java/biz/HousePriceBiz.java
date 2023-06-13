@@ -1,31 +1,33 @@
 package biz;
 
 
-import lombok.RequiredArgsConstructor;
+import lombok.Builder;
 import utils.PartitionUtil;
 
 import java.util.List;
 
-@RequiredArgsConstructor
+@Builder
 public class HousePriceBiz {
 
-    private final DataNotifier dataNotifier;
+    private DataNotifier dataNotifier;
 
-    private final SoldHouseDetailFetcher detailFetcher;
+    private SoldHouseDetailFetcher detailFetcher;
 
-    private final SoldHouseDataListFetcher listFetcher;
+    private SoldHouseDataListFetcher listFetcher;
 
-    private final HouseOperator houseOperator;
+    private LianJiaAppOperator lianJiaAppOperator;
 
-    private final LianJiaWebLoginContext webLoginContext;
+    private LianJiaWebOperator lianJiaWebOperator;
 
-    private final AppFollowedQueryLoginContext appFollowedQueryLoginContext;
+    private LianJiaWebLoginContext webLoginContext;
+
+    private AppFollowedQueryLoginContext appFollowedQueryLoginContext;
 
     private HouseDataDao houseDataDao;
 
     public void acquireHouseData(String communityCode) {
         // 清空收藏夹
-        clearFollowedHouse(appFollowedQueryLoginContext);
+        clearFollowedHouse();
 
         //查询小区的所有成交房源
         List<String> soldHouseCodeList = listFetcher.fetch(communityCode, webLoginContext);
@@ -36,7 +38,7 @@ public class HousePriceBiz {
 
         // 获取房源信息
         for (String houseCode : soldHouseCodeList) {
-            HouseData fetch = detailFetcher.fetch(houseCode);
+            HouseData fetch = detailFetcher.fetch(houseCode, webLoginContext);
             // 持久化房源信息
             houseDataDao.saveHouseData(fetch);
         }
@@ -45,10 +47,10 @@ public class HousePriceBiz {
         List<List<String>> partition = PartitionUtil.partition(soldHouseCodeList, 20);
         for (List<String> houseCodeTwenty : partition) {
             for (String houseCode : houseCodeTwenty) {
-                houseOperator.follow(houseCode,webLoginContext);
+                lianJiaWebOperator.follow(houseCode,webLoginContext);
             }
             // 获取关注的房源信息
-            List<FollowedHouseDataEntity> followedHouseList = houseOperator.queryFollowedHouse(appFollowedQueryLoginContext);
+            List<FollowedHouseDataEntity> followedHouseList = lianJiaAppOperator.queryFollowedHouse(appFollowedQueryLoginContext);
             // 更新房源信息
             for (FollowedHouseDataEntity entity : followedHouseList) {
 
@@ -65,20 +67,22 @@ public class HousePriceBiz {
                 houseDataEntity.setCommunityId(entity.getCommunityId());
                 houseDataEntity.setCommunityName(entity.getCommunityName());
                 houseDataEntity.setSoldDate(entity.getSoldDate());
-//                houseDataDao.updateHouseData();
+                houseDataEntity.setSoldPrice(entity.getSoldPrice());
+                houseDataEntity.setSoldUnitPrice(entity.getSoldPriceUnit());
+                houseDataDao.updateHouseData(houseDataEntity);
             }
         }
 
     }
 
-    private void clearFollowedHouse(AppFollowedQueryLoginContext context) {
+    private void clearFollowedHouse() {
         while (true) {
             List<FollowedHouseDataEntity> entities =
-                    houseOperator.queryFollowedHouse(context);
+                    lianJiaAppOperator.queryFollowedHouse(appFollowedQueryLoginContext);
             if (entities.isEmpty()) {
                 return;
             }
-            entities.forEach(entity -> houseOperator.unFollow(entity.getHouseCode(), context));
+            entities.forEach(entity -> lianJiaWebOperator.unFollow(entity.getHouseCode(), webLoginContext));
         }
     }
 }

@@ -3,6 +3,7 @@ package biz;
 import okhttp3.Headers;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import utils.OKHttpUtil;
 
@@ -13,16 +14,10 @@ public class LianJiaWebSoldHouseDetailFetcherImpl implements SoldHouseDetailFetc
 
     private static final String SOLD_DETAIL_URL = "https://bj.lianjia.com/chengjiao/%s.html";
 
-    private LianJiaWebLoginContext context;
-
-    public LianJiaWebSoldHouseDetailFetcherImpl(LianJiaWebLoginContext context) {
-        this.context = context;
-    }
-
     @Override
-    public HouseData fetch(String houseCode) {
+    public HouseData fetch(String houseCode, LianJiaWebLoginContext webLoginContext) {
         String fullApi = String.format(SOLD_DETAIL_URL, houseCode);
-        String content = OKHttpUtil.get(fullApi, Headers.of(context.headers()));
+        String content = OKHttpUtil.get(fullApi, Headers.of(webLoginContext.headers()));
         Document document = Jsoup.parse(content);
 
         HouseData entity = new HouseData();
@@ -60,10 +55,18 @@ public class LianJiaWebSoldHouseDetailFetcherImpl implements SoldHouseDetailFetc
 
         entity.setArea(houseInfoElement.get(2).text());
 
-//        entity.setOrientation();
-//        entity.setCommunityId();
-//        entity.setCommunityName();
-//        entity.setHouseYears();
+        entity.setOrientation(houseInfoElement.get(6).text());
+
+
+        Elements transactionLi = document.getElementsByClass("transaction")
+                .get(0).getElementsByTag("li");
+
+        String listingDate = transactionLi.get(2).text();
+        entity.setListingDate(listingDate);
+
+
+        String houseYears = transactionLi.get(4).text();
+        entity.setHouseYears(houseYears);
 
         return null;
 

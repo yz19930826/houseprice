@@ -17,14 +17,10 @@ class LianJiaAppOperatorTest {
 
     private AppFollowedQueryLoginContext appFollowedQueryLoginContext;
 
-    private OkHttpApi httpApi;
-
 
     @BeforeEach
     public void init(){
         appFollowedQueryLoginContext = new AppFollowedQueryLoginContext();
-        httpApi = Mockito.mock(OkHttpApi.class);
-        operator = new LianJiaAppOperator(httpApi);
     }
 
     @Test
@@ -35,6 +31,8 @@ class LianJiaAppOperatorTest {
 
     @Test
     void queryFollowedHouseTest_when_given_loginContext_then_return_data() {
+        OkHttpApi httpApi = Mockito.mock(OkHttpApi.class);
+        operator = new LianJiaAppOperator(httpApi);
         Mockito.when(httpApi.get(Mockito.anyString(), Mockito.anyMap())).thenReturn("{\n" +
                 "    \"request_id\": \"322fdb74-b6e3-4924-ab35-e21e7ca23deb\",\n" +
                 "    \"uniqid\": \"010A1A0136EB12709E8801560D6550F5\",\n" +
@@ -102,4 +100,10 @@ class LianJiaAppOperatorTest {
     }
 
 
+    @Test
+    void queryFollowedHouseTest() {
+        operator = new LianJiaAppOperator(new OkHttpApi());
+        List<FollowedHouseDataEntity> entities = operator.queryFollowedHouse(appFollowedQueryLoginContext);
+        assertEquals(entities.size(), 0);
+    }
 }

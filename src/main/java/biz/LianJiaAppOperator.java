@@ -18,7 +18,7 @@ public class LianJiaAppOperator implements HouseOperator{
     private HttpApi httpApi;
 
 
-    private static final String FOLLOWED_QUERY_FIRST_PAGE = "https://apps.api.lianjia.com/user/house/followedListV3?city_id=110000&house_type=ershoufang&limit_count=20&limit_offset=0&request_ts=1680710320";
+    private static final String FOLLOWED_QUERY_FIRST_PAGE = "https://apps.api.lianjia.com/user/house/followedListV3?city_id=110000&house_type=ershoufang&limit_count=20&limit_offset=0&request_ts=1680677231";
     @Override
     public List<FollowedHouseDataEntity> queryFollowedHouse(LoginContext loginContext) {
         if (loginContext == null){
@@ -28,7 +28,7 @@ public class LianJiaAppOperator implements HouseOperator{
         String resultJson = httpApi.get(FOLLOWED_QUERY_FIRST_PAGE, loginContext.headers());
 
         JSONArray jsonArray = JSON.parseObject(resultJson).getJSONObject("data").getJSONArray("list");
-        if (jsonArray.isEmpty()){
+        if (jsonArray == null || jsonArray.isEmpty()){
             return Collections.emptyList();
         }
 
@@ -44,6 +44,7 @@ public class LianJiaAppOperator implements HouseOperator{
             entity.setCommunityName(jsonObject.getString("community_name"));
             entity.setSoldPrice(jsonObject.getString("price"));
             entity.setSoldPriceUnit(jsonObject.getString("unit_price"));
+            entity.setHouseCode(jsonObject.getString("house_code"));
 
             resultList.add(entity);
         }
