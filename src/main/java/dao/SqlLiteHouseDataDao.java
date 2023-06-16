@@ -1,9 +1,9 @@
 package dao;
 
-import biz.HouseDataDao;
 import biz.HouseData;
+import biz.HouseDataDao;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.binary.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import utils.DateUtil;
 
 import java.lang.reflect.Field;
@@ -12,9 +12,9 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiConsumer;
 
 /**
  * 在sqllite中持久化房源信息
@@ -53,14 +53,13 @@ public class SqlLiteHouseDataDao implements HouseDataDao {
     @Override
     public boolean saveHouseData(HouseData entity) {
 
-        String sql = String.format("insert into t_house_data_new (house_code, listing_price, listing_unit_price, listing_date, title, sold_date,\n" +
-                        "                              orientation, floor_state, home_pic, community_id, community_name,  city_id,\n" +
-                        "                              house_layout, area, inside_area, sold_price, sold_unit_price, created_time, modify_time,\n" +
-                        "                              house_age_after_last_transaction)\n" +
-                        "values ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');", entity.getHouseCode(), entity.getListingPrice(), entity.getListingUnitPrice(), entity.getListingDate(), entity.getTitle(), entity.getSoldDate(),
-                entity.getOrientation(), entity.getFloor(), entity.getPic(), entity.getCommunityId(), entity.getCommunityName(), entity.getCityId(),
-                entity.getLayout(), entity.getArea(), entity.getInsideArea(), entity.getSoldPrice(), entity.getSoldUnitPrice(), DateUtil.format(LocalDateTime.now()), DateUtil.format(LocalDateTime.now()),
-                entity.getHouseYears());
+
+        HouseDataEntity convert = convert(entity);
+
+        Map<String, Object> nonNullValueFromEntity = getNonNullValueFromEntity(convert);
+
+        String sql = generateInsertSql(nonNullValueFromEntity);
+
 
         PreparedStatement preparedStatement = null;
         try (Connection connection = getConnection()) {
@@ -81,30 +80,30 @@ public class SqlLiteHouseDataDao implements HouseDataDao {
         }
     }
 
+    private String generateInsertSql(Map<String, Object> nonNullValueFromEntity) {
+        if (nonNullValueFromEntity == null || nonNullValueFromEntity.isEmpty()){
+            throw new IllegalArgumentException();
+        }
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("insert into t_house_data_new (");
+        StringBuilder valueBuilder = new StringBuilder();
+        valueBuilder.append(" values (");
+        for (Map.Entry<String, Object> entry : nonNullValueFromEntity.entrySet()) {
+            sqlBuilder.append(entry.getKey()).append(",");
+            valueBuilder.append("'").append(entry.getValue()).append("'").append(",");
+        }
+        sqlBuilder.deleteCharAt(sqlBuilder.length() - 1);
+        valueBuilder.deleteCharAt(valueBuilder.length() - 1);
+        sqlBuilder.append(")");
+        valueBuilder.append(")");
+        sqlBuilder.append(valueBuilder);
+        return sqlBuilder.toString();
+    }
+
     @Override
     public boolean updateHouseData(HouseData entity) {
 
-        HouseDataEntity dataEntity = new HouseDataEntity();
-        dataEntity.setTitle(entity.getTitle());
-        dataEntity.setHouseCode(entity.getHouseCode());
-        dataEntity.setFetchFrom(entity.getFetchFrom());
-        dataEntity.setSoldPrice(entity.getSoldPrice());
-        dataEntity.setSoldUnitPrice(entity.getSoldUnitPrice());
-        dataEntity.setSoldDays(entity.getSoldDays());
-        dataEntity.setSoldDate(entity.getSoldDate());
-        dataEntity.setListingPrice(entity.getListingPrice());
-        dataEntity.setListingUnitPrice(entity.getListingUnitPrice());
-        dataEntity.setListingDate(entity.getListingDate());
-        dataEntity.setHomePic(entity.getPic());
-        dataEntity.setFloorState(entity.getFloor());
-        dataEntity.setOrientation(entity.getOrientation());
-        dataEntity.setCommunityId(entity.getCommunityId());
-        dataEntity.setCommunityName(entity.getCommunityName());
-        dataEntity.setHouseAgeAfterLastTransaction(entity.getHouseYears());
-        dataEntity.setHouseLayout(entity.getLayout());
-        dataEntity.setInsideArea(entity.getInsideArea());
-        dataEntity.setArea(entity.getArea());
-        dataEntity.setCityId(entity.getCityId());
+        HouseDataEntity dataEntity = convert(entity);
 
         String updateSql = generateUpdateSql(dataEntity);
 
@@ -127,9 +126,48 @@ public class SqlLiteHouseDataDao implements HouseDataDao {
         }
     }
 
+    @NotNull
+    private HouseDataEntity convert(HouseData houseData) {
+        HouseDataEntity dataEntity = new HouseDataEntity();
+        dataEntity.setTitle(houseData.getTitle());
+        dataEntity.setHouseCode(houseData.getHouseCode());
+        dataEntity.setFetchFrom(houseData.getFetchFrom());
+        dataEntity.setSoldPrice(houseData.getSoldPrice());
+        dataEntity.setSoldUnitPrice(houseData.getSoldUnitPrice());
+        dataEntity.setSoldDays(houseData.getSoldDays());
+        dataEntity.setSoldDate(houseData.getSoldDate());
+        dataEntity.setListingPrice(houseData.getListingPrice());
+        dataEntity.setListingUnitPrice(houseData.getListingUnitPrice());
+        dataEntity.setListingDate(houseData.getListingDate());
+        dataEntity.setHomePic(houseData.getPic());
+        dataEntity.setFloorState(houseData.getFloor());
+        dataEntity.setOrientation(houseData.getOrientation());
+        dataEntity.setCommunityId(houseData.getCommunityId());
+        dataEntity.setCommunityName(houseData.getCommunityName());
+        dataEntity.setHouseAgeAfterLastTransaction(houseData.getHouseYears());
+        dataEntity.setHouseLayout(houseData.getLayout());
+        dataEntity.setInsideArea(houseData.getInsideArea());
+        dataEntity.setArea(houseData.getArea());
+        dataEntity.setCityId(houseData.getCityId());
+        return dataEntity;
+    }
+
     public String generateUpdateSql(HouseDataEntity dataEntity) {
         StringBuilder sb = new StringBuilder("update t_house_data_new set ");
         // 反射获取所有字段
+        Map<String, Object> sqlParamMap = getNonNullValueFromEntity(dataEntity);
+        if (sqlParamMap.isEmpty()){
+            throw new IllegalArgumentException("dataEntity is empty");
+        }
+        sqlParamMap.forEach((s, o) -> sb.append(s).append(" = ").append("'").append(o).append("'").append(","));
+        sb.deleteCharAt(sb.length() - 1);
+
+        sb.append(" where house_code = '").append(dataEntity.getHouseCode()).append("';");
+        return sb.toString();
+    }
+
+    @NotNull
+    private Map<String, Object> getNonNullValueFromEntity(HouseDataEntity dataEntity) {
         Map<String, Object> sqlParamMap = new HashMap<>();
         Field[] fields = HouseDataEntity.class.getDeclaredFields();
         for (Field field : fields) {
@@ -141,14 +179,7 @@ public class SqlLiteHouseDataDao implements HouseDataDao {
             }
             sqlParamMap.put(camelToUnderscore(name), object);
         }
-        if (sqlParamMap.isEmpty()){
-            throw new IllegalArgumentException("dataEntity is empty");
-        }
-        sqlParamMap.forEach((s, o) -> sb.append(s).append(" = ").append("'").append(o).append("'").append(","));
-        sb.deleteCharAt(sb.length() - 1);
-
-        sb.append(" where house_code = '").append(dataEntity.getHouseCode()).append("';");
-        return sb.toString();
+        return sqlParamMap;
     }
 
     private Object getValue(HouseDataEntity dataEntity, Field field) {

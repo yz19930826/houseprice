@@ -7,6 +7,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import utils.OKHttpUtil;
 
+import java.util.Objects;
+
 /**
  *
  */
@@ -45,30 +47,32 @@ public class LianJiaWebSoldHouseDetailFetcherImpl implements SoldHouseDetailFetc
                 .get(0)
                 .getElementsByClass("base")
                 .get(0)
-                .getElementsByTag("label");
+                .getElementsByTag("li");
 
-        String text = houseInfoElement.get(0).text();
+        String text = Objects.requireNonNull(houseInfoElement.get(0).lastChild()).toString();
         entity.setLayout(text);
 
-        String floorState = houseInfoElement.get(1).text();
+        String floorState = houseInfoElement.get(1).lastChild().toString();
         entity.setFloor(floorState);
 
-        entity.setArea(houseInfoElement.get(2).text());
+        entity.setArea(houseInfoElement.get(2).lastChild().toString());
 
-        entity.setOrientation(houseInfoElement.get(6).text());
+        entity.setOrientation(houseInfoElement.get(6).lastChild().toString());
 
 
         Elements transactionLi = document.getElementsByClass("transaction")
                 .get(0).getElementsByTag("li");
 
-        String listingDate = transactionLi.get(2).text();
+        String listingDate = transactionLi.get(2).lastChild().toString();
         entity.setListingDate(listingDate);
 
 
-        String houseYears = transactionLi.get(4).text();
+        String houseYears = transactionLi.get(4).lastChild().toString();
         entity.setHouseYears(houseYears);
 
-        return null;
+        entity.setFetchFrom(FromTypeEnum.LIAN_JIA.getCode());
+
+        return entity;
 
     }
 
