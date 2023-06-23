@@ -71,6 +71,10 @@ public class HousePriceBiz {
                 houseDataEntity.setSoldUnitPrice(entity.getSoldPriceUnit());
                 houseDataDao.updateHouseData(houseDataEntity);
             }
+            // 取消关注房源
+            for (String houseCode : houseCodeTwenty) {
+                lianJiaWebOperator.unFollow(houseCode,webLoginContext);
+            }
         }
 
     }
