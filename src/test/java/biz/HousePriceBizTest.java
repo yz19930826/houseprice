@@ -5,6 +5,7 @@ import dao.SqlLiteHouseDataDao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,6 +31,10 @@ class HousePriceBizTest {
 
     @Test
     void acquireHouseData() {
-        housePriceBiz.acquireHouseData("1111047382388");
+        List<String> communityIdList =  new ArrayList<String>();
+        communityIdList.add("1111027381528");
+        for (String id : communityIdList) {
+            housePriceBiz.acquireHouseData(id);
+        }
     }
 }

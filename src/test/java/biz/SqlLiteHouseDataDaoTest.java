@@ -9,6 +9,13 @@ class SqlLiteHouseDataDaoTest {
 
     SqlLiteHouseDataDao dataDao ;
 
+
+    @Test
+    void query() {
+        boolean b = dataDao.selectByHouseCode("12121");
+        System.out.println(b);
+    }
+
     @BeforeEach
     public void init(){
         dataDao = new SqlLiteHouseDataDao();

@@ -4,13 +4,11 @@ import biz.HouseData;
 import biz.HouseDataDao;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.jsoup.internal.StringUtil;
 import utils.DateUtil;
 
 import java.lang.reflect.Field;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
@@ -112,6 +110,29 @@ public class SqlLiteHouseDataDao implements HouseDataDao {
             preparedStatement = connection.prepareStatement(updateSql);
             int i = preparedStatement.executeUpdate();
             return i == 1;
+        } catch (SQLException throwables) {
+            log.error("saveHouseData error:{}", throwables);
+            return false;
+        } finally {
+            try {
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public boolean selectByHouseCode(String houseCode) {
+
+        PreparedStatement preparedStatement = null;
+        try (Connection connection = getConnection()) {
+            preparedStatement = connection.prepareStatement(String.format("select house_code from t_house_data_new where house_code = '%s'",houseCode));
+            ResultSet resultSet = preparedStatement.executeQuery();
+            String house_code = resultSet.getString("house_code");
+            return !StringUtil.isBlank(house_code);
         } catch (SQLException throwables) {
             log.error("saveHouseData error:{}", throwables);
             return false;

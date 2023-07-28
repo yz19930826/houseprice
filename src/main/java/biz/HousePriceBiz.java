@@ -5,6 +5,7 @@ import lombok.Builder;
 import utils.PartitionUtil;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Builder
 public class HousePriceBiz {
@@ -36,8 +37,13 @@ public class HousePriceBiz {
             return;
         }
 
+        soldHouseCodeList = soldHouseCodeList.stream()
+                .filter(houseCode -> !houseDataDao.selectByHouseCode(houseCode))
+                .collect(Collectors.toList());
+
         // 获取房源信息
         for (String houseCode : soldHouseCodeList) {
+
             HouseData fetch = detailFetcher.fetch(houseCode, webLoginContext);
             // 持久化房源信息
             houseDataDao.saveHouseData(fetch);
